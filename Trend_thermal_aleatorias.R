@@ -15,7 +15,7 @@ if (!dir.exists(resultados_dir)) {
 archivos <- list.files(path = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Ocurrencias_aleatorias/", 
                        pattern = "TA_TC_TT", 
                        full.names = TRUE)
-archivos <- archivos[c(2,6)]
+
 # Crear una tabla vacía para almacenar los resultados finales
 final_table <- data.frame(
   Records = character(),
