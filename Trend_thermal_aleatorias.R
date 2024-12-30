@@ -15,7 +15,7 @@ if (!dir.exists(resultados_dir)) {
 archivos <- list.files(path = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Ocurrencias_aleatorias/", 
                        pattern = "TA_TC_TT", 
                        full.names = TRUE)
-
+archivos <- archivos[c(1:3,6)]
 # Crear una tabla vacía para almacenar los resultados finales
 final_table <- data.frame(
   Records = character(),
@@ -34,7 +34,7 @@ for (archivo in archivos) {
   Data$TMAX <- Data$TMAX / 10
   Data$TMIN <- Data$TMIN / 10
   Data[, c(4:7)] <- round(Data[, c(4:7)], 4)
-  Data$thermal_O <- gsub("SC", "TC", Data$thermal_O)
+  
   
   x <- "Año_Mes" # Variable independiente
   y <- c("TMAX","TMIN")  # Variables dependiente
@@ -88,6 +88,7 @@ for (archivo in archivos) {
         by = c("Spp" = "species"))  %>% 
       separate(Spp,c("A", "Thermal_G", "B"), sep = "_", remove = FALSE) %>% 
       subset(select = -c(A,B))
+    Tabla_sig_mean$Thermal_G <- gsub("SC", "TC", Data$Thermal_G)
     
     # Crear tabla de frecuencias, manejando posibles problemas de dimensiones
     a <- table(Tabla_sig_mean$Thermal_G, Tabla_sig_mean$Thermal)
@@ -124,11 +125,11 @@ final_table$Records <- as.numeric(final_table$Records)
 
 # Luego, ordena el dataframe
 final_table <- final_table[order(final_table$Records), ]
-writexl::write_xlsx(final_table, paste0(resultados_dir, "error_result_", sesgo,".xlsx") )
+writexl::write_xlsx(final_table, paste0(resultados_dir, "error_result.xlsx") )
 
 final_table_long <- final_table %>%
   pivot_longer(
-    cols = c(SA_error, SC_error, SD_error),
+    cols = c(TT_error, TC_error, TA_error),
     names_to = "Error_Type",
     values_to = "Count"
   )
@@ -141,11 +142,11 @@ ggplot(final_table_long, aes(x = Records, y = Count, col = Error_Type, group = E
   geom_point() + 
   geom_line() +
   scale_color_manual(
-    values = c("SA_error" = "red", "SC_error" = "blue", "SD_error" = "green"),
-    labels = c("SA", "SC", "SD")
+    values = c("TT_error" = "red", "TC_error" = "blue", "TA_error" = "green"),
+    labels = c("TT", "TC", "TA")
   ) +
   labs(
-    title = "Distribución de Errores por Registros 1-2-4",
+    title = "Distribución de Errores",
     x = "Records",
     y = "Cantidad",
     color = "Tipo de Error"

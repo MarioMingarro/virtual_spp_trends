@@ -132,7 +132,7 @@ writexl::write_xlsx(final_table, paste0(resultados_dir, "error_result_", sesgo,"
 
 final_table_long <- final_table %>%
   pivot_longer(
-    cols = c(SA_error, SC_error, SD_error),
+    cols = c(TT_error, TC_error, TA_error),
     names_to = "Error_Type",
     values_to = "Count"
   )
@@ -145,11 +145,11 @@ ggplot(final_table_long, aes(x = Records, y = Count, col = Error_Type, group = E
   geom_point() + 
   geom_line() +
   scale_color_manual(
-    values = c("SA_error" = "red", "SC_error" = "blue", "SD_error" = "green"),
-    labels = c("SA", "SC", "SD")
+    values = c("TT_error" = "red", "TC_error" = "blue", "TA_error" = "green"),
+    labels = c("TT", "TC", "TA")
   ) +
   labs(
-    title = "Distribución de Errores por Registros 1-2-4",
+    title = "Distribución de Errores",
     x = "Records",
     y = "Cantidad",
     color = "Tipo de Error"
