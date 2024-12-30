@@ -15,7 +15,7 @@ if (!dir.exists(resultados_dir)) {
 archivos <- list.files(path = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Ocurrencias_aleatorias/", 
                        pattern = "TA_TC_TT", 
                        full.names = TRUE)
-archivos <- archivos[c(1:3,6)]
+archivos <- archivos[c(2,6)]
 # Crear una tabla vacía para almacenar los resultados finales
 final_table <- data.frame(
   Records = character(),
@@ -88,7 +88,7 @@ for (archivo in archivos) {
         by = c("Spp" = "species"))  %>% 
       separate(Spp,c("A", "Thermal_G", "B"), sep = "_", remove = FALSE) %>% 
       subset(select = -c(A,B))
-    Tabla_sig_mean$Thermal_G <- gsub("SC", "TC", Data$Thermal_G)
+    Tabla_sig_mean$Thermal_G <- gsub("SC", "TC", Tabla_sig_mean$Thermal_G)
     
     # Crear tabla de frecuencias, manejando posibles problemas de dimensiones
     a <- table(Tabla_sig_mean$Thermal_G, Tabla_sig_mean$Thermal)
