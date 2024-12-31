@@ -1,4 +1,4 @@
-directorio <- "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/V2/"
+directorio <- "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/SPATIAL/Ocurrencias_aleatorias/"
 Data <- readRDS(paste0(directorio, "muestreo_aleat_SA_SC_SD_percent_0.005.RDS")) # RUTA A LOS DATOS
 
 packages <- c(
@@ -65,7 +65,7 @@ server <- function(input, output, session) {
     ggplot() +
       geom_sf(data = world_map) +
       geom_point(data = filtered_data, aes(Long, Lat, col = as.factor(year)), alpha = 0.2) +
-      labs(title = input$selected_species, subtitle = paste0("0.1%   count = ", nrow(filtered_data))) +
+      labs(title = input$selected_species, subtitle = paste0("count = ", nrow(filtered_data))) +
       scale_colour_viridis_d(option = "D", alpha = 0.8) +
       coord_sf(xlim = c(-20, 50), ylim = c(35, 75), expand = FALSE) +
       theme(axis.text = element_text(angle = 45, size = 8),
@@ -79,11 +79,12 @@ server <- function(input, output, session) {
     filtered_data <- species_data()
     
     ggplot() +
-      geom_point(data = Data, aes(x = Año_Mes, y = Lat), alpha = 0.2) + 
-      geom_smooth(data = Data, aes(x = Año_Mes, y = Lat), col = "black", fill = "black", method = "lm") +
-      geom_smooth(data = filtered_data, aes(x = Año_Mes, y = Lat), col = "red", fill = "red", method = "lm") +
+      geom_smooth(data = Data, aes(x = Año_Mes, y = Lat, color = "Lat - General"), method = "lm", se = FALSE) +
+      geom_smooth(data = filtered_data, aes(x = Año_Mes, y = Lat, color = "Lat - Specie"), method = "lm", se = FALSE) +
       ggtitle(paste0(input$selected_species)) +
-      labs(x = "Year", y = "Latitude") +
+      labs(x = "Year", y = "Latitude", color = "Legend", fill = "Legend") +
+      scale_color_manual(values = c("Lat - General" = "magenta", 
+                                    "Lat - Specie" = "blue"))+
       theme_minimal()
   })
 }

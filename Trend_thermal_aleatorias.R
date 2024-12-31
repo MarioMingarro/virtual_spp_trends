@@ -15,7 +15,7 @@ if (!dir.exists(resultados_dir)) {
 archivos <- list.files(path = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Ocurrencias_aleatorias/", 
                        pattern = "TA_TC_TT", 
                        full.names = TRUE)
-
+archivos <- archivos[5:6]
 # Crear una tabla vacía para almacenar los resultados finales
 final_table <- data.frame(
   Records = character(),
@@ -41,27 +41,35 @@ for (archivo in archivos) {
   
   spp <- unique(Data$species)
   bonferroni <- 0.005 / length(spp)
+  tabla_ind <- data.frame()
   
-  # Configurar clúster de paralelización
-  numCores <- detectCores() - 10
-  cl <- makeCluster(numCores)
-  registerDoParallel(cl)
-  
-  # Ejecutar el cálculo de tendencias en paralelo
-  tabla_ind <- foreach(
-    sp = spp,
-    .combine = rbind,
-    .packages = c("tidyverse", "jtools")
-  ) %dopar% {
-    resultado <- spp_trend(Data, sp, y, n_min = 10)
-    if (!is.null(resultado) && nrow(resultado) > 0) {
-      resultado[, 4] <- round(resultado[, 4], 4)  # Redondear columna 4
-    }
-    return(resultado)
+  tic()
+  for (i in 1:length(spp)){
+    resultado <- spp_trend(Data, spp[i], y, n_min = 10)
+    tabla_ind <- rbind(tabla_ind , resultado)
   }
-  
-  # Detener el clúster
-  stopCluster(cl)
+  toc()
+    
+  # # Configurar clúster de paralelización
+  # numCores <- detectCores() - 15
+  # cl <- makeCluster(numCores)
+  # registerDoParallel(cl)
+  # 
+  # # Ejecutar el cálculo de tendencias en paralelo
+  # tabla_ind <- foreach(
+  #   sp = spp,
+  #   .combine = rbind,
+  #   .packages = c("tidyverse", "jtools")
+  # ) %dopar% {
+  #   resultado <- spp_trend(Data, sp, y, n_min = 10)
+  #   if (!is.null(resultado) && nrow(resultado) > 0) {
+  #     resultado[, 4] <- round(resultado[, 4], 4)  # Redondear columna 4
+  #   }
+  #   return(resultado)
+  # }
+  # 
+  # # Detener el clúster
+  # stopCluster(cl)
   
   # Procesar la tabla resultante
   if (!is.null(tabla_ind) && nrow(tabla_ind) > 0) {
