@@ -19,9 +19,9 @@ archivos <- list.files(path = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Ocurre
 # Crear una tabla vacía para almacenar los resultados finales
 final_table <- data.frame(
   Records = character(),
-  SA_error = numeric(),
-  SC_error = numeric(),
-  SD_error = numeric()
+  TT_error = numeric(),
+  TC_error = numeric(),
+  TA_error = numeric()
 )
 
 # Iterar sobre los archivos
