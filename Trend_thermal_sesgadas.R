@@ -16,20 +16,21 @@ archivos <- list.files(path = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Ocurre
                        pattern = "^muestreo_temp_bias", 
                        full.names = TRUE)
 
-archivos <- archivos[1:7]
+archivos <- archivos[8:14]
 
 # Crear una tabla vacía para almacenar los resultados finales
 final_table <- data.frame(
   Records = character(),
-  SA_error = numeric(),
-  SC_error = numeric(),
-  SD_error = numeric()
+  TT_error = numeric(),
+  TC_error = numeric(),
+  TA_error = numeric()
 )
 
 # Iterar sobre los archivos
 for (archivo in archivos) {
   # Leer el archivo
   Data <- readRDS(archivo)
+  Data <- Data[-8]
   Data$Año_Mes <- Data$month * 0.075
   Data$Año_Mes <- Data$year + Data$Año_Mes
   colnames(Data) <- c("species","year","month","Long","Lat","TMAX","TMIN","thermal_O","Año_Mes")
