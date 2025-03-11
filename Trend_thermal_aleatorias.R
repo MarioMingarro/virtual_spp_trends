@@ -10,7 +10,6 @@ if (!dir.exists(resultados_dir)) {
   dir.create(resultados_dir)
 }
 
-
 # Obtener la lista de archivos que comienzan con "muestreo_lat_bias"
 archivos <- list.files(path = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Ocurrencias_aleatorias/", 
                        pattern = "TA_TC_TT", 
@@ -26,12 +25,10 @@ final_table <- data.frame(
 
 # Iterar sobre los archivos
 for (archivo in archivos) {
-  # Leer el archivo
-  Data <- readRDS(archivo)
-  write_rds(Data,"C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Ocurrencias_aleatorias/AAA.rds" )
+  Data <- readRDS(archivos)
   Data$Año_Mes <- Data$month * 0.075
   Data$Año_Mes <- Data$year + Data$Año_Mes
-  colnames(Data) <- c("species","year","month","Long","Lat","TMAX","TMIN","thermal_O","Año_Mes")
+  colnames(Data) <- c("species","year","month","Long","Lat","TMAX","TMIN", "thermal_O","Año_Mes")
   Data$TMAX <- Data$TMAX / 10
   Data$TMIN <- Data$TMIN / 10
   Data[, c(4:7)] <- round(Data[, c(4:7)], 4)
@@ -153,3 +150,7 @@ ggplot(final_table_long, aes(x = Records, y = Count, col = Error_Type, group = E
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+
