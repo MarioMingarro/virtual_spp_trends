@@ -1,5 +1,5 @@
 closeAllConnections()
-rm(list=(ls()[ls()!="Data"]))
+rm(list=(ls()[ls()!=""]))
 gc(reset=TRUE)
 source("Funciones.R")
 
@@ -25,17 +25,23 @@ final_table <- data.frame(
 
 # Iterar sobre los archivos
 for (archivo in archivos) {
-  Data <- readRDS(archivos)
+  Data <- readRDS(archivo)
   Data$Año_Mes <- Data$month * 0.075
   Data$Año_Mes <- Data$year + Data$Año_Mes
-  colnames(Data) <- c("species","year","month","Long","Lat","TMAX","TMIN", "TMED", "thermal_O","Año_Mes")
+  if (ncol(Data) >= 10) {
+    colnames(Data) <- c("species", "year", "month", "Long", "Lat", 
+                        "TMAX", "TMIN", "TMED", "thermal_O", "Año_Mes")} else {
+    colnames(Data) <- c("species", "year", "month", "Long", "Lat", 
+                        "TMAX", "TMIN", "TMED", "thermal_O")
+  }
+  
   Data$TMAX <- Data$TMAX / 10
   Data$TMIN <- Data$TMIN / 10
   Data[, c(4:7)] <- round(Data[, c(4:7)], 4)
   
   
   x <- "Año_Mes" # Variable independiente
-  y <- c("TMIN")  # Variables dependiente
+  y <- "TMIN"  # Variables dependiente
   
   spp <- unique(Data$species)
   bonferroni <- 0.005 / length(spp)
