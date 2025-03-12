@@ -20,6 +20,47 @@ subset_data <- Data %>% sample_frac(0.025)
 write_rds(subset_data, "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Ocurrencias_aleatorias/muestreo_aleat_TA_TC_TT_percent_0.025.RDS")
 
 
+mutate(
+  Thermal =
+    case_when(
+      # Si los p-valores de p_TMIN o p_TMAX son mayores que el umbral de Bonferroni,
+      # significa que no hay suficiente evidencia estadística para detectar un cambio térmico significativo.
+      # Por lo tanto, se clasifica como "TC" (Térmicamente Conservador).
+      p_TMIN > bonferroni  ~ "TC",
+      p_TMAX > bonferroni  ~ "TC",
+      
+      # Si el p-valor de la tendencia mínima (p_TMIN) es menor que el umbral de Bonferroni
+      # Y el p-valor de la diferencia con la general (Dif_pvalue_TMIN) también es significativo
+      # Y la tendencia de la temperatura mínima (Trend_TMIN) es NEGATIVA
+      # Entonces significa que la temperatura mínima está disminuyendo significativamente,
+      # por lo que se clasifica como "TA" (posiblemente enfriamiento).
+      p_TMIN <= bonferroni & Dif_pvalue_TMIN <= bonferroni & Trend_TMIN < 0 ~ "TA",
+      
+      # Si el p-valor de la tendencia mínima (p_TMIN) es significativo (≤ bonferroni)
+      # Y el p-valor de la diferencia con la general (Dif_pvalue_TMIN) también es significativo
+      # Y la tendencia de la temperatura mínima (Trend_TMIN) es POSITIVA
+      # Entonces significa que la temperatura mínima está aumentando significativamente,
+      # por lo que se clasifica como "TT" (posiblemente calentamiento).
+      p_TMIN <= bonferroni & Dif_pvalue_TMIN <= bonferroni & Trend_TMIN > 0 ~ "TT",
+      
+      # Si el p-valor de la tendencia máxima (p_TMAX) es significativo (≤ bonferroni)
+      # Y el p-valor de la diferencia con la general (Dif_pvalue_TMAX) también es significativo
+      # Y la tendencia de la temperatura máxima (Trend_TMAX) es NEGATIVA
+      # Entonces significa que la temperatura máxima está disminuyendo significativamente,
+      # por lo que se clasifica como "TA" (posiblemente enfriamiento).
+      p_TMAX <= bonferroni & Dif_pvalue_TMAX <= bonferroni & Trend_TMAX < 0 ~ "TA",
+      
+      # Si el p-valor de la tendencia máxima (p_TMAX) es significativo (≤ bonferroni)
+      # Y el p-valor de la diferencia con la general (Dif_pvalue_TMAX) también es significativo
+      # Y la tendencia de la temperatura máxima (Trend_TMAX) es POSITIVA
+      # Entonces significa que la temperatura máxima está aumentando significativamente,
+      # por lo que se clasifica como "TT" (posiblemente calentamiento).
+      p_TMAX <= bonferroni & Dif_pvalue_TMAX <= bonferroni & Trend_TMAX > 0 ~ "TT",
+      
+      # Si ninguna de las condiciones anteriores se cumple, se clasifica como "TC" (sin cambios significativos).
+      TRUE ~ "TC"
+    )
+)
 
 
 # Errores al 2% todos TC

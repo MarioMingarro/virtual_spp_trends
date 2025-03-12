@@ -28,14 +28,14 @@ for (archivo in archivos) {
   Data <- readRDS(archivos)
   Data$Año_Mes <- Data$month * 0.075
   Data$Año_Mes <- Data$year + Data$Año_Mes
-  colnames(Data) <- c("species","year","month","Long","Lat","TMAX","TMIN", "thermal_O","Año_Mes")
+  colnames(Data) <- c("species","year","month","Long","Lat","TMAX","TMIN", "TMED", "thermal_O","Año_Mes")
   Data$TMAX <- Data$TMAX / 10
   Data$TMIN <- Data$TMIN / 10
   Data[, c(4:7)] <- round(Data[, c(4:7)], 4)
   
   
   x <- "Año_Mes" # Variable independiente
-  y <- c("TMAX","TMIN")  # Variables dependiente
+  y <- c("TMIN")  # Variables dependiente
   
   spp <- unique(Data$species)
   bonferroni <- 0.005 / length(spp)
@@ -72,11 +72,8 @@ for (archivo in archivos) {
           Thermal =
             case_when(
               p_TMIN > bonferroni  ~ "TC",
-              p_TMAX > bonferroni  ~ "TC",
               p_TMIN <= bonferroni & Dif_pvalue_TMIN <= bonferroni & Trend_TMIN  < 0 ~ "TA",
               p_TMIN <= bonferroni & Dif_pvalue_TMIN <= bonferroni & Trend_TMIN  > 0 ~ "TT",
-              p_TMAX <= bonferroni & Dif_pvalue_TMAX <= bonferroni & Trend_TMAX  < 0 ~ "TA",
-              p_TMAX <= bonferroni & Dif_pvalue_TMAX <= bonferroni & Trend_TMAX  > 0 ~ "TT",
               TRUE ~ "TC")) %>%
       left_join(
         Data %>%
