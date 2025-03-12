@@ -20,6 +20,8 @@ subset_data <- Data %>% sample_frac(0.025)
 write_rds(subset_data, "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Ocurrencias_aleatorias/muestreo_aleat_TA_TC_TT_percent_0.025.RDS")
 
 
+  
+  
 mutate(
   Thermal =
     case_when(
@@ -64,7 +66,17 @@ mutate(
 
 
 # Errores al 2% todos TC
-res_02 <- readxl::read_xlsx("C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Resultados_aleatorias/Tabla_sig_mean_0.02.xlsx")
+res_02 <- readxl::read_xlsx("C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Resultados_aleatorias/Tabla_sig_mean_0.001.xlsx")
+
+spp <- unique(res_02$Spp)
+bonferroni <- 0.005 / length(spp)
+res_02 <- res_02 %>% mutate(
+  Thermal =
+  case_when(
+    p_TMIN > bonferroni  ~ "TC",
+    p_TMIN <= bonferroni & Dif_pvalue_TMIN <= bonferroni & Trend_TMIN  < 0 ~ "TA",
+    p_TMIN <= bonferroni & Dif_pvalue_TMIN <= bonferroni & Trend_TMIN  > 0 ~ "TT",
+    TRUE ~ "TC"))
 
 desajustes <- res_02 %>%
   filter(Thermal_G != Thermal) 
