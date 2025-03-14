@@ -14,7 +14,7 @@ if (!dir.exists(resultados_dir)) {
 archivos <- list.files(path = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Ocurrencias_aleatorias/", 
                        pattern = "TA_TC_TT", 
                        full.names = TRUE)
-
+archivos <- archivos[1:4]
 # Crear una tabla vacía para almacenar los resultados finales
 final_table <- data.frame(
   Records = character(),
@@ -41,7 +41,7 @@ for (archivo in archivos) {
   
   
   x <- "Año_Mes" # Variable independiente
-  y <- "TMIN"  # Variables dependiente
+  y <- "TMAX"  # Variables dependiente
   
   spp <- unique(Data$species)
   bonferroni <- 0.005 / length(spp)
@@ -77,9 +77,9 @@ for (archivo in archivos) {
         mutate(
           Thermal =
             case_when(
-              p_TMIN > bonferroni  ~ "TC",
-              p_TMIN <= bonferroni & Dif_pvalue_TMIN <= bonferroni & Trend_TMIN  < 0 ~ "TA",
-              p_TMIN <= bonferroni & Dif_pvalue_TMIN <= bonferroni & Trend_TMIN  > 0 ~ "TT",
+              p_TMAX > bonferroni  ~ "TC",
+              p_TMAX <= bonferroni & Dif_pvalue_TMAX <= bonferroni & Trend_TMAX  < 0 ~ "TA",
+              p_TMAX <= bonferroni & Dif_pvalue_TMAX <= bonferroni & Trend_TMAX  > 0 ~ "TT",
               TRUE ~ "TC")) %>%
       left_join(
         Data %>%

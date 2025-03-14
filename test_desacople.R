@@ -66,20 +66,38 @@ mutate(
 
 
 # Errores al 2% todos TC
-res_02 <- readxl::read_xlsx("C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Resultados_aleatorias/Tabla_sig_mean_0.001.xlsx")
+res_02 <- readxl::read_xlsx("C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Resultados_aleatorias_old/Tabla_sig_mean_0.02.xlsx")
 
 spp <- unique(res_02$Spp)
-bonferroni <- 0.005 / length(spp)
+bonferroni <- 0.05 / length(spp)
+
+
 res_02 <- res_02 %>% mutate(
-  Thermal =
+  Thermal_X =
   case_when(
-    p_TMIN > bonferroni  ~ "TC",
-    p_TMIN <= bonferroni & Dif_pvalue_TMIN <= bonferroni & Trend_TMIN  < 0 ~ "TA",
-    p_TMIN <= bonferroni & Dif_pvalue_TMIN <= bonferroni & Trend_TMIN  > 0 ~ "TT",
+    p_TMAX > bonferroni  ~ "TC",
+    p_TMAX <= bonferroni & Dif_pvalue_TMAX <= bonferroni & Trend_TMAX  < 0 ~ "TA",
+    p_TMAX <= bonferroni & Dif_pvalue_TMAX <= bonferroni & Trend_TMAX  > 0 ~ "TT",
     TRUE ~ "TC"))
 
-desajustes <- res_02 %>%
-  filter(Thermal_G != Thermal) 
+desajustes_TMAX <- res_02 %>%
+  filter(Thermal_G != Thermal_X) 
+
+res_02 <- res_02 %>% mutate(
+  Thermal_N =
+    case_when(
+      p_TMIN > bonferroni  ~ "TC",
+      p_TMIN <= bonferroni & Dif_pvalue_TMIN <= bonferroni & Trend_TMIN  < 0 ~ "TA",
+      p_TMIN <= bonferroni & Dif_pvalue_TMIN <= bonferroni & Trend_TMIN  > 0 ~ "TT",
+      TRUE ~ "TC"))
+
+desajustes_TMIN <- res_02 %>%
+  filter(Thermal_G != Thermal_N) 
+
+
+res_02 %>% group_by(Thermal_G) %>% 
+  summarise(mean(Trend_TMIN), max(Trend_TMIN), min(Trend_TMIN))
+
 
 spp_SC_49 <- filter(Data, species == "virtualsp_SC_49")
 spp_SC_49 <- general_trend(Data = spp_SC_49, y)

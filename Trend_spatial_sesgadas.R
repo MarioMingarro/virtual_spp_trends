@@ -17,7 +17,7 @@ archivos <- list.files(path = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/SPATIAL/Ocurre
                        pattern = "^muestreo_lat_bias", 
                        full.names = TRUE)
 
-archivos <- archivos[1:7]
+archivos <- archivos[7]
 
 # Crear una tabla vacía para almacenar los resultados finales
 final_table <- data.frame(
@@ -42,7 +42,8 @@ for (archivo in archivos) {
   y <- c("Lat") # Variables dependiente
   
   spp <- unique(Data$species)
-  bonferroni <- 0.005 / length(spp)
+  bonferroni <- 0.05 / length(spp)
+  bonferroni <- round(bonferroni, 6)
   
   # Configurar clúster de paralelización
   numCores <- detectCores() - 10
@@ -57,7 +58,7 @@ for (archivo in archivos) {
   ) %dopar% {
     resultado <- spp_trend(Data, sp, y, n_min = 10)
     if (!is.null(resultado) && nrow(resultado) > 0) {
-      resultado[, 4] <- round(resultado[, 4], 4)  # Redondear columna 4
+      resultado[, 4] <- round(resultado[, 4], 6)  # Redondear columna 4
     }
     return(resultado)
   }

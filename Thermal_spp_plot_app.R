@@ -1,5 +1,5 @@
 directorio <- "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Ocurrencias_aleatorias/"
-Data <- readRDS(paste0(directorio, "muestreo_aleat_TA_TC_TT_percent_0.02.RDS")) # RUTA A LOS DATOS
+Data <- readRDS(paste0(directorio, "muestreo_aleat_TA_TC_TT_percent_0.001.RDS")) # RUTA A LOS DATOS
 
 packages <- c(
   "shiny",

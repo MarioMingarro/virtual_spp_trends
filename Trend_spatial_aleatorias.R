@@ -11,12 +11,14 @@ if (!dir.exists(resultados_dir)) {
   dir.create(resultados_dir)
 }
 
+write_xlsx(Tabla_sig_mean, "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/SPATIAL/TEST_JORGE_sesg.xlsx")
 
 # Obtener la lista de archivos que comienzan con "muestreo_lat_bias"
 archivos <- list.files(path = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/SPATIAL/Ocurrencias_aleatorias", 
                        pattern = "SA_SC_SD", 
                        full.names = TRUE)
 
+archivos <- archivos[8]
 
 # Crear una tabla vacía para almacenar los resultados finales
 final_table <- data.frame(
@@ -35,14 +37,14 @@ for (archivo in archivos) {
   colnames(Data) <- c("species","year","month","Long","Lat","TMAX","TMIN","thermal_O","Año_Mes")
   Data$TMAX <- Data$TMAX / 10
   Data$TMIN <- Data$TMIN / 10
-  Data[, c(4:7)] <- round(Data[, c(4:7)], 4)
+  Data[, c(4:7)] <- round(Data[, c(4:7)], 6)
   
   x <- "Año_Mes" # Variable independiente
   y <- c("Lat") # Variables dependiente
   
   spp <- unique(Data$species)
-  bonferroni <- 0.005 / length(spp)
-  
+  bonferroni <- 0.05 / length(spp)
+  bonferroni <- round(bonferroni, 6)
   # Configurar clúster de paralelización
   numCores <- detectCores() - 10
   cl <- makeCluster(numCores)
@@ -56,7 +58,7 @@ for (archivo in archivos) {
   ) %dopar% {
     resultado <- spp_trend(Data, sp, y, n_min = 10)
     if (!is.null(resultado) && nrow(resultado) > 0) {
-      resultado[, 4] <- round(resultado[, 4], 4)  # Redondear columna 4
+      resultado[, 4] <- round(resultado[, 4], 6)  # Redondear columna 4
     }
     return(resultado)
   }
