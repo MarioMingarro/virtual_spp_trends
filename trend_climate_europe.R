@@ -6,7 +6,7 @@ source("Funciones.R")
 library(terra)
 
 # Listar archivos
-archivos <- list.files("C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/Clima_Europa/", full.names = TRUE)
+archivos <- list.files("C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/Clima_Europa/data/", full.names = TRUE)
 YEARS_TO_USE <- c(seq(1901, 2015, 10), 2016)
 
 # Inicializar data frame vacío
@@ -15,7 +15,7 @@ data <- data.frame()
 for (year in YEARS_TO_USE) {
   archivo <- archivos[grep(paste0(year), archivos)]
   a <- terra::rast(archivo)
-  a <- terra::median(a / 10)
+  a <- terra::mean(a / 10)
   b <- as.data.frame(a, xy = TRUE)
   
   # Renombrar columnas
@@ -43,33 +43,148 @@ for (i in 1:nrow(data)) {
   results$Media[i] <- mean(valores)
 }
 
-# Crear raster con los resultados
-results_raster <- as.data.frame(results[, c(2, 1, 3)], xy = TRUE)
-colnames(results_raster) <- c("long", "lat", "trend")
+# Tendencia
+trend_raster <- as.data.frame(results[, c(2, 1, 3)], xy = TRUE)
+colnames(trend_raster) <- c("long", "lat", "trend")
+trend_raster <- terra::rast(trend_raster)
 
-# Convertir a un objeto raster
-r <- terra::rast(results_raster)
-
-# Guardar el ráster en un archivo
 writeRaster(r, filename = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/Clima_Europa/mean_tmax_spp_virtual.tif",  overwrite = TRUE)
+
+# Media
+tmax_mean_raster <- as.data.frame(results[, c(2, 1, 3)], xy = TRUE)
+colnames(tmax_mean_raster) <- c("long", "lat", "Tmean")
+tmax_mean_raster <- terra::rast(tmax_mean_raster)
+
+
 
 
 # Reshape the data to long format for ggplot
 data_long <- data %>%
   pivot_longer(cols = `1901`:`2016`, names_to = "year", values_to = "value")
 
-# Graficar los datos con ggplot
-ggplot(data_long, aes(x = year, y = value)) +
-  geom_point(size = 3) + # Puntos de los datos
-  geom_smooth(method = lm) + # Línea de tendencia
-  labs(title = "Gráfico de valores a través de los años",
-       x = "Año",
-       y = "Valor") +
+data_long$year <- as.numeric(as.character(data_long$year))
+data_long$value <- as.numeric(as.character(data_long$value))
+
+
+mask <- sf::read_sf("C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/Clima_Europa/mask.shp")
+world_map <- geodata::world(path = tempdir(), resolution = 2)
+world_map <- sf::st_as_sf(world_map)
+
+
+
+library(showtext) # Para usar fuentes personalizadas
+
+# Cargar la fuente (ejemplo: Montserrat)
+font_add_google("Montserrat", "montserrat")
+showtext_auto()
+
+# Gráfico mejorado
+grafico_mejorado <- ggplot() +
+  geom_point(data = data_long, aes(x = year, y = value),alpha = 0.5,  color = "#ADD8E6")+
+  geom_smooth(data = data_long, aes(x = year, y = value),
+              method = "loess",
+              color = "#0072B2", #
+              fill = "#ADD8E6", # Un azul más claro para el área de confianza
+              alpha = 0.3) +
+  labs(y = "Temperature (°C)") +
+  theme_minimal(base_family = "calibri") +
+  theme(
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+    axis.title.x = element_blank(),
+    axis.title.y = element_text(size = 14, margin = margin(r = 10), angle = 270),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+    axis.text.y = element_text(size = 14),
+    panel.grid.major.y = element_line(color = "gray90", linetype = "dashed"),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    plot.background = element_rect(fill = "white", color = "gray90"), # Fondo blanco con borde gris
+    panel.background = element_rect(fill = "white")
+  )
+
+
+ggsave("C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/Clima_Europa/grafico_achatador2.jpg",  plot = grafico_mejorado, width = 10, height = 4, units = "cm")
+
+showtext_auto(FALSE)
+
+# Mostrar el gráfico mejorado
+print(grafico_mejorado)
+
+showtext_auto(FALSE) #desactiva showtext
+
+library(ggplot2)
+library(patchwork)
+library(sf) # Asegúrate de tener instalada la librería sf para geom_sf
+
+# Suponiendo que tienes los dataframes y objetos necesarios:
+# data_long, world_map, results, mask
+
+# Gráfico de línea de tendencia
+ggplot() +
+  geom_smooth(data = data_long, aes(x = year, y = value), method = "lm") +
+  labs(y = "ºC") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-# Mostrar el gráfico
-print(p)
+# Mapa de tendencia
+tendencia <- ggplot() +
+  geom_sf(data = world_map, fill = "gray80", color = "black") +
+  geom_tile(data = results, aes(x = long, y = lat, fill = Pendiente)) +
+  geom_sf(data = mask, fill = "transparent", color = "black") +
+  coord_sf(xlim = c(-10, 40), ylim = c(35, 70)) +
+  theme_light() +
+  theme(axis.title = element_blank()) +
+  scale_fill_viridis_c()
+
+# Mapa de temperatura media
+media <- ggplot() +
+  geom_sf(data = world_map, fill = "gray80", color = "black") +
+  geom_tile(data = results, aes(x = long, y = lat, fill = Media)) +
+  geom_sf(data = mask, fill = "transparent", color = "black") +
+  coord_sf(xlim = c(-10, 40), ylim = c(35, 70)) +
+  theme_light() +
+  theme(axis.title = element_blank()) +
+  scale_fill_viridis_c()
+
+# Composición de los gráficos usando patchwork
+layout <- "
+A C
+B C
+"
+
+final_plot <- media + tendencia / grafico +
+  plot_layout(design = layout)
+
+(media + tendencia) / grafico
+
+# Mostrar el gráfico final
+print(final_plot)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
