@@ -1,7 +1,7 @@
 closeAllConnections()
 rm(list=(ls()[ls()!="Data"]))
 gc(reset=TRUE)
-source("Funciones.R")
+
 
 library(terra)
 
@@ -48,7 +48,7 @@ trend_raster <- as.data.frame(results[, c(2, 1, 3)], xy = TRUE)
 colnames(trend_raster) <- c("long", "lat", "trend")
 trend_raster <- terra::rast(trend_raster)
 
-writeRaster(r, filename = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/Clima_Europa/mean_tmax_spp_virtual.tif",  overwrite = TRUE)
+writeRaster(trend_raster, filename = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/Clima_Europa/mean_tmax_spp_virtual_v2.tif",  overwrite = TRUE)
 
 # Media
 tmax_mean_raster <- as.data.frame(results[, c(2, 1, 3)], xy = TRUE)
@@ -57,7 +57,7 @@ tmax_mean_raster <- terra::rast(tmax_mean_raster)
 
 
 
-
+library(tidyr)
 # Reshape the data to long format for ggplot
 data_long <- data %>%
   pivot_longer(cols = `1901`:`2016`, names_to = "year", values_to = "value")
@@ -77,10 +77,8 @@ library(showtext) # Para usar fuentes personalizadas
 # Cargar la fuente (ejemplo: Montserrat)
 font_add_google("Montserrat", "montserrat")
 showtext_auto()
-
-# Gráfico mejorado
+library(ggplot2) 
 grafico_mejorado <- ggplot() +
-  geom_point(data = data_long, aes(x = year, y = value),alpha = 0.5,  color = "#ADD8E6")+
   geom_smooth(data = data_long, aes(x = year, y = value),
               method = "loess",
               color = "#0072B2", #
@@ -102,7 +100,7 @@ grafico_mejorado <- ggplot() +
   )
 
 
-ggsave("C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/Clima_Europa/grafico_achatador2.jpg",  plot = grafico_mejorado, width = 10, height = 4, units = "cm")
+ggsave("C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/Clima_Europa/grafico_achatador3.jpg",  plot = grafico_mejorado, width = 10, height = 4, units = "cm")
 
 showtext_auto(FALSE)
 

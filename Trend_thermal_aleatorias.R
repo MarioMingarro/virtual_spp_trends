@@ -14,7 +14,7 @@ if (!dir.exists(resultados_dir)) {
 archivos <- list.files(path = "C:/A_TRABAJO/A_JORGE/SPP_VIRTUALES/THERMAL/Ocurrencias_aleatorias/", 
                        pattern = "TA_TC_TT", 
                        full.names = TRUE)
-archivos <- archivos[1:4]
+archivos <- archivos[1]
 # Crear una tabla vacía para almacenar los resultados finales
 final_table <- data.frame(
   Records = character(),
@@ -44,7 +44,7 @@ for (archivo in archivos) {
   y <- "TMAX"  # Variables dependiente
   
   spp <- unique(Data$species)
-  bonferroni <- 0.005 / length(spp)
+  bonferroni <- 0.05 / length(spp)
   # Configurar clúster de paralelización
   numCores <- detectCores() - 10
   cl <- makeCluster(numCores)
